@@ -1,22 +1,29 @@
 import { Box, Button, FormControl, FormLabel, Input } from '@chakra-ui/react'
 import { Formik, Form } from 'formik'
+import { responsePathAsArray } from 'graphql'
 import React from 'react'
+import { useMutation } from 'urql'
 import { InputField } from '../components/InputField'
 import { Wrapper } from '../components/Wrapper'
+import { useRegisterMutation } from '../generated/graphql'
 
-
-
-interface registerProps {
-
-}
+interface registerProps {}
 
 export const Register: React.FC<registerProps> = ({}) => {
+  const [, register] = useRegisterMutation();
   return (
     <Wrapper>
       <Formik 
         initialValues={{ username: "", password: "" }}
-        onSubmit={(values) => {
-          console.log(values)
+        onSubmit={async (values, { setErrors }) => {
+          const response = await register(values)
+          if(response.data?.register.errors){
+            [{field: 'username', message: 'Something went wrong'}]
+            setErrors({
+              username: "I'm an error!"
+            })
+          }
+          
         }}
         >
           {({ isSubmitting}) => (
